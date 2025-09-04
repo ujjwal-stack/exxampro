@@ -1,0 +1,36 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamPro - Student Portal</title>
+
+    
+    <!-- React and Babel CDN -->
+    <!-- <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script> -->
+    
+    <!-- TailwindCSS and Font Awesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="src/styles/main.css">
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- Load dependencies in order -->
+    <script type="text/babel" src="src/data/questions.js"></script>
+    <script type="text/babel" src="src/utils/helpers.js"></script>
+    <script type="text/babel" src="src/components/AuthForm.js"></script>
+    <script type="text/babel" src="src/components/Dashboard.js"></script>
+    <script type="text/babel" src="src/components/ExamInterface.js"></script>
+    <script type="text/babel" src="src/components/ResultsPage.js"></script>
+    <script type="text/babel" src="src/App.js"></script>
+    
+    <script type="text/babel">
+        ReactDOM.render(<App />, document.getElementById('root'));
+    </script>
+</body>
+</html>
