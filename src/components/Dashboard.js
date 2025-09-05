@@ -4,9 +4,10 @@ import utils from "../utils/helpers";
 import { examData } from '../data/questions';
 import { sampleExamHistory, performanceStats, examConfigs } from "../data/questions";
 
-const Dashboard = ({ user, onStartExam, onLogout }) => {
+/* const Dashboard = ({ user, onStartExam, onLogout, }) => { */
+  const Dashboard = ({ user, userProgress, onStartExam, onLogout, onNavigate}) => {  
     const { useState, useEffect } = React;
-    
+    const [searchTerm, setSearchTerm] = useState('');
     const [examHistory, setExamHistory] = useState([]);
     const [stats, setStats] = useState(null);
     const [availableExams, setAvailableExams] = useState([]);
@@ -22,6 +23,14 @@ const Dashboard = ({ user, onStartExam, onLogout }) => {
         { id: 2, title: "Exam Reminder", message: "Don't forget to complete your Node.js exam", time: "1 day ago", unread: true },
         { id: 3, title: "Score Update", message: "Your JavaScript exam score has been updated", time: "3 days ago", unread: false }
     ];
+
+    // add the section of some cards
+    const quickActions = [
+                { title: "Practice Mode", description: "Quick practice questions", icon: "fa-dumbbell", action: () => onNavigate('practice'), color: "bg-green-500" },
+                { title: "Study Materials", description: "Access learning resources", icon: "fa-book", action: () => onNavigate('study'), color: "bg-blue-500" },
+                { title: "Certificates", description: "View your achievements", icon: "fa-certificate", action: () => onNavigate('certificates'), color: "bg-purple-500" },
+                { title: "Forum", description: "Join discussions", icon: "fa-comments", action: () => onNavigate('forum'), color: "bg-orange-500" }
+            ];
 
     // Initialize dashboard data
     useEffect(() => {
@@ -76,8 +85,8 @@ const Dashboard = ({ user, onStartExam, onLogout }) => {
         <div className="min-h-screen bg-gray-50">
             {/* Navigation Header */}
             <nav className="bg-white shadow-sm border-b sticky top-0 z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
+                <div className="max-w-10xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-left h-16">
                         <div className="flex items-center space-x-4">
                             <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                                 <i className="fas fa-graduation-cap text-white text-sm"></i>
@@ -86,7 +95,48 @@ const Dashboard = ({ user, onStartExam, onLogout }) => {
                             <span className="hidden sm:inline text-gray-500">|</span>
                             <span className="hidden sm:inline text-gray-600">Student Portal</span>
                         </div>
+
+                                <div className="hidden md:flex items-center space-x-6">
+                                    <button 
+                                        onClick={() => onNavigate('dashboard')}
+                                        className="text-blue-600 hover:text-blue-700 font-medium"
+                                    >
+                                        <i className="fas fa-home mr-2"></i>Dashboard
+                                    </button>
+                                    <button 
+                                        onClick={() => onNavigate('study')}
+                                        className="text-gray-600 hover:text-gray-900 font-medium"
+                                    >
+                                        <i className="fas fa-book mr-2"></i>Study
+                                    </button>
+                                    <button 
+                                        onClick={() => onNavigate('analytics')}
+                                        className="text-gray-600 hover:text-gray-900 font-medium"
+                                    >
+                                        <i className="fas fa-chart-line mr-2"></i>Analytics
+                                    </button>
+                                    <button 
+                                        onClick={() => onNavigate('leaderboard')}
+                                        className="text-gray-600 hover:text-gray-900 font-medium"
+                                    >
+                                        <i className="fas fa-trophy mr-2"></i>Leaderboard
+                                    </button>
+                                </div>
+
+
                         <div className="flex items-center space-x-4">
+
+                           <div className="hidden sm:block relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Search exams..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        />
+                                        <i className="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                                    </div>
+
                             <div className="hidden sm:flex items-center space-x-2">
                                 <img 
                                     src={user.avatar} 
@@ -205,14 +255,81 @@ const Dashboard = ({ user, onStartExam, onLogout }) => {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Welcome Section */}
-                <div className="mb-8">
+               {/*  <div className="mb-8">
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">
                         Welcome back, {user.name.split(' ')[0]}! 👋
                     </h2>
                     <p className="text-gray-600">
                         Ready to take your next exam? Check your performance and start a new assessment.
                     </p>
-                </div>
+                </div> */}
+
+                {/* Welcome Section with Enhanced Progress */}
+                        <div className="mb-8 relative z-0">
+                            <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white relative overflow-hidden">
+                                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"></div>
+                                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"></div>
+                                <div className="relative z-10">
+                                    <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center">
+                                        <div>
+                                            <h2 className="text-3xl font-bold mb-2">Welcome back, {user.name}! 👋</h2>
+                                            <p className="text-blue-100 mb-4">Ready to continue your learning journey?</p>
+                                            <div className="flex items-center space-x-6">
+                                                <div className="text-center">
+                                                    <div className="text-2xl font-bold">{userProgress.streak}</div>
+                                                    <div className="text-sm text-blue-100">Day Streak</div>
+                                                </div>
+                                                <div className="text-center">
+                                                    <div className="text-2xl font-bold">{userProgress.xp}</div>
+                                                    <div className="text-sm text-blue-100">Total XP</div>
+                                                </div>
+                                                <div className="text-center">
+                                                    <div className="text-2xl font-bold">{userProgress.averageScore}%</div>
+                                                    <div className="text-sm text-blue-100">Avg Score</div>
+                                                </div>
+                                                <div className="text-center">
+                                                    <div className="text-2xl font-bold">#{userProgress.rank}</div>
+                                                    <div className="text-sm text-blue-100">Global Rank</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className="mt-6 lg:mt-0">
+                                            <div className="bg-white bg-opacity-20 rounded-lg p-4">
+                                                <div className="text-sm text-blue-100 mb-2">Progress to Level {userProgress.level + 1}</div>
+                                                <div className="w-48 bg-white bg-opacity-30 rounded-full h-2">
+                                                    <div 
+                                                        className="bg-white rounded-full h-2 transition-all duration-500"
+                                                        style={{ width: `${(userProgress.xp / userProgress.nextLevelXp) * 100}%` }}
+                                                    ></div>
+                                                </div>
+                                                <div className="text-xs text-blue-100 mt-1">
+                                                    {userProgress.xp} / {userProgress.nextLevelXp} XP
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+                        {/* Quick Actions */}
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                            {quickActions.map((action, index) => (
+                                <button
+                                    key={index}
+                                    onClick={action.action}
+                                    className="bg-white rounded-xl shadow-sm border p-6 text-left transition transform hover:shadow-md hover:scale-105"
+                                >
+                                    <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-4`}>
+                                        <i className={`fas ${action.icon} text-white`}></i>
+                                    </div>
+                                    <h3 className="font-semibold text-gray-900 mb-1">{action.title}</h3>
+                                    <p className="text-sm text-gray-600">{action.description}</p>
+                                </button>
+                            ))}
+                        </div>
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

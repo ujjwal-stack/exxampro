@@ -4,8 +4,11 @@ import AuthForm from "./components/AuthForm";
 import Dashboard from "./components/Dashboard";
 import ExamInterface from "./components/ExamInterface";
 import ResultsPage from "./components/ResultsPage";
+import PracticeModePage from "./components/PracticeModePage";
 
 
+import { sampleQuestions } from "./data/questions";
+// import { sampleExamHistory, performanceStats, examConfigs } from "./data/questions"; --- IGNORE ---
 
 
 const App = () => {
@@ -16,6 +19,18 @@ const App = () => {
     const [examResult, setExamResult] = useState(null);
     const [currentExamConfig, setCurrentExamConfig] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [userProgress, setUserProgress] = useState({
+                totalExams: 12,
+                passedExams: 8,
+                averageScore: 82,
+                studyHours: 45,
+                streak: 5,
+                level: 3,
+                xp: 2450,
+                nextLevelXp: 3000,
+                certificates: 3,
+                rank: 156
+            });
 
     // Initialize app and check for existing user session
     useEffect(() => {
@@ -96,7 +111,16 @@ const App = () => {
         setExamResult(result);
         setCurrentView('results');
         
+        setUserProgress(prev => ({
+                    ...prev,
+                    totalExams: prev.totalExams + 1,
+                    passedExams: result.score >= sampleQuestions[result.examType].passingScore ? prev.passedExams + 1 : prev.passedExams,
+                    xp: prev.xp + Math.floor(result.score * 2)
+                }));
+
+
         // Track exam completion
+
         trackUserActivity('exam_completed', {
             userId: user?.id,
             examId: result.examConfig.id,
@@ -269,6 +293,10 @@ const App = () => {
         </div>
     );
 
+    const navigateTo = (view) => {
+                setCurrentView(view);
+            };
+
     // Render current view
     const renderCurrentView = () => {
         try {
@@ -280,8 +308,10 @@ const App = () => {
                     return (
                         <Dashboard 
                             user={user} 
+                            userProgress={userProgress}
                             onStartExam={handleStartExam}
                             onLogout={handleLogout}
+                            onNavigate={navigateTo}
                         />
                     );
                 
@@ -292,6 +322,14 @@ const App = () => {
                             examConfig={currentExamConfig}
                             onExamComplete={handleExamComplete}
                             onExitExam={handleExitExam}
+                        />
+                    );
+
+                case 'practice':
+                    return (
+                        <PracticeModePage
+                            user={user}
+                            onNavigate={navigateTo}
                         />
                     );
                 
