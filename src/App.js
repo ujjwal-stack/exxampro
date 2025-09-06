@@ -5,9 +5,13 @@ import Dashboard from "./components/Dashboard";
 import ExamInterface from "./components/ExamInterface";
 import ResultsPage from "./components/ResultsPage";
 import PracticeModePage from "./components/PracticeModePage";
+import ForumPage from "./components/ForumPage";
+import StudyMaterialPage from "./components/StudyMaterialPage";
+import { ExamHistory } from "./components/ExamHistory";
 
 
 import { sampleQuestions } from "./data/questions";
+import CertificatesPage from "./components/CertificatesPage";
 // import { sampleExamHistory, performanceStats, examConfigs } from "./data/questions"; --- IGNORE ---
 
 
@@ -328,6 +332,38 @@ const App = () => {
                 case 'practice':
                     return (
                         <PracticeModePage
+                            user={user}
+                            onNavigate={navigateTo}
+                        />
+                    );
+
+                case 'certificates':
+                    return (
+                        <CertificatesPage 
+                            user={user}
+                            userProgress={userProgress}
+                            onNavigate={navigateTo}
+                        />
+                    )
+
+                case 'studym':
+                    return (
+                        <StudyMaterialPage 
+                            user={user}
+                            onNavigate={navigateTo}
+                        />
+                    );
+
+                case 'examHistory':
+                    return (
+                        <ExamHistory 
+                            onNavigate={navigateTo}
+                        />
+                    );
+
+                case 'forum':
+                    return (
+                        <ForumPage 
                             user={user}
                             onNavigate={navigateTo}
                         />
