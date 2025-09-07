@@ -118,7 +118,7 @@ const App = () => {
         setUserProgress(prev => ({
                     ...prev,
                     totalExams: prev.totalExams + 1,
-                    passedExams: result.score >= sampleQuestions[result.examType].passingScore ? prev.passedExams + 1 : prev.passedExams,
+                    passedExams: result.score >= result.examConfig.passingScore ? prev.passedExams + 1 : prev.passedExams,
                     xp: prev.xp + Math.floor(result.score * 2)
                 }));
 
