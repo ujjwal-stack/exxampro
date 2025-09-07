@@ -1,12 +1,16 @@
 // Dashboard Component
 import React, { useState, useEffect } from "react";
 import utils from "../utils/helpers";
-import { examData } from '../data/questions';
+import Contact from "./Contact";
+import { motion } from "framer-motion";
+import Footer from "./Footer";
+import Navigation from "./Navigation";
 import { sampleExamHistory, performanceStats, examConfigs } from "../data/questions";
 
-const Dashboard = ({ user, onStartExam, onLogout }) => {
+/* const Dashboard = ({ user, onStartExam, onLogout, }) => { */
+const Dashboard = ({ user, userProgress, onStartExam, onLogout, onNavigate }) => {
     const { useState, useEffect } = React;
-    
+    const [searchTerm, setSearchTerm] = useState('');
     const [examHistory, setExamHistory] = useState([]);
     const [stats, setStats] = useState(null);
     const [availableExams, setAvailableExams] = useState([]);
@@ -16,11 +20,19 @@ const Dashboard = ({ user, onStartExam, onLogout }) => {
 
     const [showNotifications, setShowNotifications] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
-    
+
     const notifications = [
         { id: 1, title: "New Exam Available", message: "CSS & Frontend Design exam is now available", time: "2 hours ago", unread: true },
         { id: 2, title: "Exam Reminder", message: "Don't forget to complete your Node.js exam", time: "1 day ago", unread: true },
         { id: 3, title: "Score Update", message: "Your JavaScript exam score has been updated", time: "3 days ago", unread: false }
+    ];
+
+    // add the section of some cards
+    const quickActions = [
+        { title: "Practice Mode", description: "Quick practice questions", icon: "fa-dumbbell", action: () => onNavigate('practice'), color: "bg-green-500" },
+        { title: "Study Materials", description: "Access learning resources", icon: "fa-book", action: () => onNavigate('studym'), color: "bg-blue-500" },
+        { title: "Certificates", description: "View your achievements", icon: "fa-certificate", action: () => onNavigate('certificates'), color: "bg-purple-500" },
+        { title: "Forum", description: "Join discussions", icon: "fa-comments", action: () => onNavigate('forum'), color: "bg-orange-500" }
     ];
 
     // Initialize dashboard data
@@ -75,143 +87,153 @@ const Dashboard = ({ user, onStartExam, onLogout }) => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* Navigation Header */}
-            <nav className="bg-white shadow-sm border-b sticky top-0 z-10">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center space-x-4">
-                            <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                                <i className="fas fa-graduation-cap text-white text-sm"></i>
-                            </div>
-                            <h1 className="text-xl font-bold text-gray-900">ExamPro</h1>
-                            <span className="hidden sm:inline text-gray-500">|</span>
-                            <span className="hidden sm:inline text-gray-600">Student Portal</span>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                            <div className="hidden sm:flex items-center space-x-2">
-                                <img 
-                                    src={user.avatar} 
-                                    alt={user.name}
-                                    className="w-8 h-8 rounded-full"
-                                />
-                                <span className="text-gray-700">Welcome, {user.name}</span>
-                            </div>
-                            <div className="flex items-center space-x-2 relative">
-                                {/* Notifications */}
-                                <div className="relative">
-                                    <button 
-                                        onClick={() => {
-                                            setShowNotifications(!showNotifications);
-                                            setShowSettings(false);
-                                        }}
-                                        className="notification-button p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors relative"
-                                    >
-                                        <i className="fas fa-bell"></i>
-                                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></span>
-                                    </button>
-                                    
-                                    {showNotifications && (
-                                        <div className="notification-popup absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
-                                            <div className="p-4 border-b">
-                                                <h3 className="font-semibold text-gray-900">Notifications</h3>
-                                            </div>
-                                            <div className="max-h-64 overflow-y-auto">
-                                                {notifications.map((notification) => (
-                                                    <div key={notification.id} className={`p-4 border-b hover:bg-gray-50 ${notification.unread ? 'bg-blue-50' : ''}`}>
-                                                        <div className="flex items-start justify-between">
-                                                            <div className="flex-1">
-                                                                <h4 className="font-medium text-gray-900 text-sm">{notification.title}</h4>
-                                                                <p className="text-gray-600 text-sm mt-1">{notification.message}</p>
-                                                                <p className="text-gray-400 text-xs mt-2">{notification.time}</p>
-                                                            </div>
-                                                            {notification.unread && (
-                                                                <div className="w-2 h-2 bg-blue-500 rounded-full mt-1"></div>
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                            <div className="p-3 border-t">
-                                                <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
-                                                    Mark all as read
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+            <Navigation
+                onNavigate={onNavigate}
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                user={user}
+                showNotifications={showNotifications}
+                setShowNotifications={setShowNotifications}
+                notifications={notifications}
+                showSettings={showSettings}
+                setShowSettings={setShowSettings}
+                handleLogout={handleLogout}
+            />
+            {/* Main Content */}
 
-                                {/* Settings */}
-                                <div className="relative">
-                                    <button 
-                                        onClick={() => {
-                                            setShowSettings(!showSettings);
-                                            setShowNotifications(false);
-                                        }}
-                                        className="settings-button p-2 text-gray-500 hover:text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
-                                    >
-                                        <i className="fas fa-cog"></i>
-                                    </button>
-                                    
-                                    {showSettings && (
-                                        <div className="settings-popup absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border z-50">
-                                            <div className="p-4 border-b">
-                                                <h3 className="font-semibold text-gray-900">Settings</h3>
-                                            </div>
-                                            <div className="py-2">
-                                                <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3">
-                                                    <i className="fas fa-user-edit text-gray-400"></i>
-                                                    <span className="text-gray-700">Edit Profile</span>
-                                                </button>
-                                                <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3">
-                                                    <i className="fas fa-key text-gray-400"></i>
-                                                    <span className="text-gray-700">Change Password</span>
-                                                </button>
-                                                <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3">
-                                                    <i className="fas fa-bell text-gray-400"></i>
-                                                    <span className="text-gray-700">Notification Settings</span>
-                                                </button>
-                                                <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3">
-                                                    <i className="fas fa-palette text-gray-400"></i>
-                                                    <span className="text-gray-700">Theme Preferences</span>
-                                                </button>
-                                                <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3">
-                                                    <i className="fas fa-download text-gray-400"></i>
-                                                    <span className="text-gray-700">Export Data</span>
-                                                </button>
-                                                <div className="border-t my-2"></div>
-                                                <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3">
-                                                    <i className="fas fa-question-circle text-gray-400"></i>
-                                                    <span className="text-gray-700">Help & Support</span>
-                                                </button>
-                                                <button className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center space-x-3">
-                                                    <i className="fas fa-info-circle text-gray-400"></i>
-                                                    <span className="text-gray-700">About ExamPro</span>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                                <button
-                                    onClick={handleLogout}
-                                    className="p-2 text-gray-500 hover:text-red-600 rounded-lg hover:bg-red-50 transition-colors"
-                                    title="Logout"
-                                >
-                                    <i className="fas fa-sign-out-alt"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </nav>
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Welcome Section */}
-                <div className="mb-8">
+                {/*  <div className="mb-8">
                     <h2 className="text-3xl font-bold text-gray-900 mb-2">
                         Welcome back, {user.name.split(' ')[0]}! 👋
                     </h2>
                     <p className="text-gray-600">
                         Ready to take your next exam? Check your performance and start a new assessment.
                     </p>
+                </div> */}
+
+                {/* Welcome Section with Enhanced Progress */}
+
+                <div className="mb-8 relative z-0">
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white relative overflow-hidden shadow-xl"
+                    >
+                        {/* Background decorative circles */}
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 1, delay: 0.3 }}
+                            className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-16 -mt-16"
+                        ></motion.div>
+                        <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 1, delay: 0.5 }}
+                            className="absolute bottom-0 left-0 w-24 h-24 bg-white opacity-10 rounded-full -ml-12 -mb-12"
+                        ></motion.div>
+
+                        {/* Content */}
+                        <div className="relative z-10">
+                            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center">
+                                {/* Welcome + Stats */}
+                                <div>
+                                    <motion.h2
+                                        initial={{ opacity: 0, x: -40 }}
+                                        animate={{ opacity: 1, x: 0 }}
+                                        transition={{ duration: 0.7 }}
+                                        className="text-3xl font-bold mb-2"
+                                    >
+                                        Welcome back, {user.name}! 👋
+                                    </motion.h2>
+                                    <motion.p
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.2 }}
+                                        className="text-blue-100 mb-4"
+                                    >
+                                        Ready to continue your learning journey?
+                                    </motion.p>
+
+                                    {/* Stats */}
+                                    <motion.div
+                                        className="flex items-center space-x-6"
+                                        initial="hidden"
+                                        animate="visible"
+                                        variants={{
+                                            hidden: { opacity: 0, y: 20 },
+                                            visible: {
+                                                opacity: 1,
+                                                y: 0,
+                                                transition: { staggerChildren: 0.2 },
+                                            },
+                                        }}
+                                    >
+                                        {[
+                                            { value: userProgress.streak, label: "Day Streak" },
+                                            { value: userProgress.xp, label: "Total XP" },
+                                            { value: `${userProgress.averageScore}%`, label: "Avg Score" },
+                                            { value: `#${userProgress.rank}`, label: "Global Rank" },
+                                        ].map((stat, index) => (
+                                            <motion.div
+                                                key={index}
+                                                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                                                className="text-center"
+                                            >
+                                                <div className="text-2xl font-bold">{stat.value}</div>
+                                                <div className="text-sm text-blue-100">{stat.label}</div>
+                                            </motion.div>
+                                        ))}
+                                    </motion.div>
+                                </div>
+
+                                {/* Progress Bar */}
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    className="mt-6 lg:mt-0"
+                                >
+                                    <div className="bg-white bg-opacity-20 rounded-lg p-4 shadow-lg backdrop-blur-md">
+                                        <div className="text-sm text-blue-100 mb-2">
+                                            Progress to Level {userProgress.level + 1}
+                                        </div>
+                                        <div className="w-48 bg-white bg-opacity-30 rounded-full h-2 overflow-hidden">
+                                            <motion.div
+                                                className="bg-white rounded-full h-2"
+                                                initial={{ width: 0 }}
+                                                animate={{ width: `${(userProgress.xp / userProgress.nextLevelXp) * 100}%` }}
+                                                transition={{ duration: 1, ease: "easeInOut" }}
+                                            ></motion.div>
+                                        </div>
+                                        <div className="text-xs text-blue-100 mt-1">
+                                            {userProgress.xp} / {userProgress.nextLevelXp} XP
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+
+                {/* Quick Actions */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    {quickActions.map((action, index) => (
+                        <button
+                            key={index}
+                            onClick={action.action}
+                            className="bg-white rounded-xl shadow-sm border p-6 text-left transition transform hover:shadow-md hover:scale-105"
+                        >
+                            <div className={`w-12 h-12 ${action.color} rounded-lg flex items-center justify-center mb-4`}>
+                                <i className={`fas ${action.icon} text-white`}></i>
+                            </div>
+                            <h3 className="font-semibold text-gray-900 mb-1">{action.title}</h3>
+                            <p className="text-sm text-gray-600">{action.description}</p>
+                        </button>
+                    ))}
                 </div>
 
                 {/* Stats Cards */}
@@ -252,7 +274,7 @@ const Dashboard = ({ user, onStartExam, onLogout }) => {
                                 Refresh
                             </button>
                         </div>
-                        
+
                         <div className="space-y-6">
                             {availableExams.map((exam) => (
                                 <ExamCard
@@ -283,7 +305,11 @@ const Dashboard = ({ user, onStartExam, onLogout }) => {
                         <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl p-6 border">
                             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
                             <div className="space-y-3">
-                                <button className="w-full flex items-center justify-between p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors text-left">
+                                {/* <button className="w-full flex items-center justify-between p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors text-left"> */}
+                                <button
+                                    onClick={() => onNavigate("examHistory")}
+                                    className="w-full flex items-center justify-between p-3 bg-white rounded-lg hover:bg-gray-50 transition-colors text-left"
+                                >
                                     <div className="flex items-center">
                                         <i className="fas fa-history text-blue-600 mr-3"></i>
                                         <span className="font-medium">Exam History</span>
@@ -309,6 +335,8 @@ const Dashboard = ({ user, onStartExam, onLogout }) => {
                     </div>
                 </div>
             </div>
+            <Contact />
+            <Footer />
         </div>
     );
 };
@@ -342,7 +370,7 @@ const ExamCard = ({ exam, onStart }) => {
     const [isHovered, setIsHovered] = useState(false);
 
     return (
-        <div 
+        <div
             className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
@@ -351,11 +379,10 @@ const ExamCard = ({ exam, onStart }) => {
                 <div className="flex-1">
                     <div className="flex items-center mb-2">
                         <h4 className="text-xl font-semibold text-gray-900">{exam.name}</h4>
-                        <span className={`ml-3 px-2 py-1 rounded-full text-xs font-medium ${
-                            exam.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
+                        <span className={`ml-3 px-2 py-1 rounded-full text-xs font-medium ${exam.difficulty === 'beginner' ? 'bg-green-100 text-green-700' :
                             exam.difficulty === 'intermediate' ? 'bg-yellow-100 text-yellow-700' :
-                            'bg-red-100 text-red-700'
-                        }`}>
+                                'bg-red-100 text-red-700'
+                            }`}>
                             {exam.difficulty.charAt(0).toUpperCase() + exam.difficulty.slice(1)}
                         </span>
                     </div>
@@ -389,11 +416,10 @@ const ExamCard = ({ exam, onStart }) => {
 
             <button
                 onClick={onStart}
-                className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${
-                    isHovered
-                        ? 'bg-blue-700 text-white transform scale-105'
-                        : 'bg-blue-600 text-white hover:bg-blue-700'
-                }`}
+                className={`w-full py-3 px-6 rounded-lg font-medium transition-all duration-300 ${isHovered
+                    ? 'bg-blue-700 text-white transform scale-105'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                    }`}
             >
                 <i className="fas fa-play-circle mr-2"></i>
                 Start Exam
@@ -405,7 +431,7 @@ const ExamCard = ({ exam, onStart }) => {
 // Result Card Component
 const ResultCard = ({ exam }) => {
     const gradeInfo = utils.grading.getLetterGrade(exam.score);
-    
+
     return (
         <div className="bg-white rounded-lg shadow-sm border p-4 hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-2">
